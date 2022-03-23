@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Django",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}\\manage.py",
+            "args": [
+                "runserver"
+            ],
+            "django": true,
+            "justMyCode": false,
+            "env": {
+                "DJANGO_SETTINGS_MODULE" : "marketplace.settings"
+            }
+        },
+        {
+            "name": "Debug Unit Test",
+            "program": "${workspaceFolder}\\manage.py",
+            "type": "python",
+            "request": "test",
+            "justMyCode": false,
+        },
+    ]
+}

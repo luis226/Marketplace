@@ -1,0 +1,25 @@
+{
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    ".",
+    "-p",
+    "test*.py",
+  ],
+  "python.envFile":"${workspaceFolder}\\.vscode\\.env",
+  "python.linting.pylintArgs": [
+    "--disable=F0401"
+  ] ,
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": true,
+  "python.terminal.activateEnvironment": false,
+  "python.analysis.extraPaths": ["marketplace", "store", "Lib"],
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell",
+      "args": ["-ExecutionPolicy", "Bypass"]
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+}
