@@ -1,7 +1,7 @@
 from django.urls import reverse
-from rest_framework import status
+from datetime import datetime
 from rest_framework.test import APITestCase
-from store.models import User
+from store.models import User, Product
 from freezegun import freeze_time
 
 ''' 
@@ -79,19 +79,97 @@ class ProductsAPITest(APITestCase):
         '''
         # Only seller user can register a product
         self.client.force_login(self.seller_user)
+
         data = {
             'price': '120.50',
             'selled_by': str(self.seller_user.uuid),
-            'stock': '10',
+            'stock': 10,
             'name': 'Computer',
             'description': 'An awesome computer',
         }
-        
-        response = self.client.post(self.url_list, data)
-        self.assertEqual(response.status_code, 201)
-        
-        del data['password']
-        data['username']  = 'NameLastName'
-        self.assertDictEqual(response.json(), data)
 
-    
+        with freeze_time('2020-01-01'):
+            response = self.client.post(self.url_list, data)
+            self.assertEqual(response.status_code, 201)
+
+        data['created'] = '2020-01-01T00:00:00Z'
+        result = response.json()
+        del result['uuid']
+        self.assertDictEqual(result, data)
+
+    def test_buyer_user_cannot_create_products(self):
+        '''
+        Check the user creation (register) works
+        '''
+        # Only seller user can register a product
+        self.client.force_login(self.buyer_user)
+
+        data = {
+            'price': '120.50',
+            'selled_by': str(self.seller_user.uuid),
+            'stock': 10,
+            'name': 'Computer',
+            'description': 'An awesome computer',
+        }
+
+        response = self.client.post(self.url_list, data)
+        self.assertEqual(response.status_code, 403)
+
+    def test_seller_user_only_see_his_products(self):
+        other_user = User.objects.create(username='other')
+        products = []
+        for i in range(5):
+            Product.objects.create(
+                selled_by=other_user,
+                price=10,
+                name=f'Product {i}',
+                stock=10
+            )
+
+            product = Product.objects.create(
+                selled_by=self.seller_user,
+                price=10,
+                name=f'Product {i}',
+                stock=10
+            )
+            products.append(product)
+        # Only seller user can register a product
+        self.client.force_login(self.seller_user)
+
+        response = self.client.get(self.url_list)
+        self.assertEqual(response.status_code, 200)
+
+        result = [r['uuid'] for r in response.json()]
+        products_uuid = [str(p.uuid) for p in products]
+
+        self.assertCountEqual(result, products_uuid)
+
+    def test_buyer_user_only_see_all_active_products(self):
+        other_user = User.objects.create(username='other')
+        products = []
+        for i in range(5):
+            Product.objects.create(
+                selled_by=other_user,
+                price=10,
+                name=f'Product {i}',
+                stock=10,
+                is_active=False
+            )
+
+            product = Product.objects.create(
+                selled_by=other_user,
+                price=10,
+                name=f'Product {i}',
+                stock=10
+            )
+            products.append(product)
+        # Only seller user can register a product
+        self.client.force_login(self.buyer_user)
+
+        response = self.client.get(self.url_list)
+        self.assertEqual(response.status_code, 200)
+
+        result = [r['uuid'] for r in response.json()]
+        products_uuid = [str(p.uuid) for p in products]
+
+        self.assertCountEqual(result, products_uuid)

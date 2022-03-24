@@ -1,7 +1,9 @@
 from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
-from store.models import Product, User
-from store.drf.serializers import CreateUserSerializer, ProductSerializer
+
+from store.drf.permissions import ProductPermission
+from store.models import Product, User, Order
+from store.drf.serializers import CreateUserSerializer, ProductSerializer, OrderSerializer
 
 
 class UserView(generics.CreateAPIView):
@@ -9,6 +11,7 @@ class UserView(generics.CreateAPIView):
     # annonymusly
     queryset = User.objects.all()
     serializer_class = CreateUserSerializer
+
 
 class ProductViewset(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -19,9 +22,18 @@ class ProductViewset(viewsets.ModelViewSet):
     unless he creates an account first. I think the user should be able
     to take a look at the store items before creating an account.
     '''
-    permission_classes= [IsAuthenticated]
+    permission_classes= [ProductPermission]
 
     def get_queryset(self):
+        # Seller user only see his products, buyer can see all active products
         queryset = super().get_queryset()
+        if self.request.user.type == 'seller':
+            queryset = queryset.filter(selled_by=self.request.user)
+        else:
+            queryset = queryset.filter(is_active=True)
         return queryset
-    
+
+
+class OrderView(generics.ListCreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer

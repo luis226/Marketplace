@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from store.models import Product, User
+from store.models import Product, User, Order
+
 
 class CreateUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
@@ -40,6 +41,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             'username': {'read_only': True},
         }
 
+
 class ProductSerializer(serializers.ModelSerializer):
     selled_by__username = serializers.SlugRelatedField(read_only=True, slug_field='username')
     selled_by = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='uuid')
@@ -52,7 +54,8 @@ class ProductSerializer(serializers.ModelSerializer):
             'stock',
             'created',
             'name',
-            'description'
+            'description',
+            'uuid'
         )
         extra_kwargs = {
             'price': {'required': True},
@@ -61,3 +64,16 @@ class ProductSerializer(serializers.ModelSerializer):
             'created': {'read_only': True},
             'name': {'required': True},
         }
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = (
+            'product',
+            'units',
+            'status',
+            'buyer',
+            'created',
+            'modified'
+        )

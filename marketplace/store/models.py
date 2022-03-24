@@ -30,6 +30,7 @@ class User(AbstractUser):
 
     type = models.CharField(choices=USER_TYPES, null=False, blank=False, max_length=20, default=SEX_MALE)
 
+
 class Product(models.Model):
     uuid = models.UUIDField(default=uuid4, unique=True)
 
@@ -47,6 +48,9 @@ class Product(models.Model):
     name = models.CharField(max_length=200, null=False, blank=False)
 
     description = models.CharField(max_length=1000)
+
+    is_active = models.BooleanField(default=True)
+
 
 class Order(models.Model):
     uuid = models.UUIDField(default=uuid4, unique=True)
