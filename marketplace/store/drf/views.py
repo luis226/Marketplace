@@ -46,7 +46,7 @@ class OrderView(generics.ListCreateAPIView):
         if self.request.user.type == 'buyer':
             queryset = queryset.filter(buyer=self.request.user)
         else:
-            queryset = queryset.filter(product__seller=self.request.user)
+            queryset = queryset.filter(product__selled_by=self.request.user)
 
         return queryset
 
