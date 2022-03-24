@@ -6,10 +6,10 @@ class ProductPermission(IsAuthenticated):
         if not super().has_permission(request, view):
             return False
 
-        if view.action == 'list' or view.action == 'retrieve':
+        if request.method == 'GET':
             return True
 
-        if view.action == 'create' and request.user.type == 'seller':
+        if request.action == 'POST ' and request.user.type == 'seller':
             return True
 
         return False
@@ -20,7 +20,10 @@ class OrderPermission(IsAuthenticated):
         if not super().has_permission(request, view):
             return False
 
-        if view.action == 'create' and request.user.type == 'buyer':
+        if request.method == 'POST' and request.user.type == 'buyer':
+            return True
+
+        if request.method == 'GET':
             return True
 
         return False

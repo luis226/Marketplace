@@ -173,3 +173,60 @@ class ProductsAPITest(APITestCase):
         products_uuid = [str(p.uuid) for p in products]
 
         self.assertCountEqual(result, products_uuid)
+
+
+class OrderAPITest(APITestCase):
+    def setUp(self):
+        self.buyer_user = User.objects.create(
+            username='buyer',
+            type='buyer',
+            email='buyer@test.com',
+        )
+        self.seller_user = User.objects.create(
+            username='seller',
+            type='seller',
+            email='seller@test.com'
+        )
+
+        self.product = Product.objects.create(
+            selled_by=self.seller_user,
+            price=10,
+            name=f'Product Test',
+            stock=10,
+        )
+
+        self.url_list = reverse('orders')
+
+    def test_buyer_can_create_order(self):
+        data = {
+            'product': str(self.product.uuid),
+            'units': 10,
+            'buyer': str(self.buyer_user.uuid),
+        }
+
+        self.client.force_login(self.buyer_user)
+
+        with freeze_time('2020, 2, 1'):
+            response = self.client.post(self.url_list, data)
+
+            self.assertEqual(response.status_code, 201)
+
+        data['status'] = 'cart'
+        data['modified'] = None
+        data['created'] = '2020-02-01T00:00:00Z'
+        self.assertDictEqual(response.json(), data)
+
+    def test_seller_cannot_create_order(self):
+        data = {
+            'product': str(self.product.uuid),
+            'units': 10,
+            'buyer': str(self.buyer_user.uuid),
+        }
+
+        self.client.force_login(self.seller_user)
+
+        response = self.client.post(self.url_list, data)
+
+        self.assertEqual(response.status_code, 403)
+
+

@@ -22,8 +22,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
-from store.drf.views import ProductViewset, UserView
-
+from store.drf.views import ProductViewset, UserView, OrderView
 
 router = DefaultRouter()
 router.register(r'products', ProductViewset, basename='products')
@@ -45,6 +44,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', views.obtain_auth_token, name='obtain-token'),
     path('users/', UserView.as_view(), name='users'),
+    path('orders/', OrderView.as_view(), name='orders'),
     path('', include(router.urls)),
     url('docs/', schema_view.with_ui('swagger', cache_timeout=0)),
 ]

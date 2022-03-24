@@ -67,13 +67,21 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    product = serializers.SlugRelatedField(queryset=Product.objects.all(), slug_field='uuid')
+    buyer = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='uuid')
+
     class Meta:
         model = Order
         fields = (
             'product',
             'units',
-            'status',
             'buyer',
+            'status',
             'created',
             'modified'
         )
+        extra_kwargs = {
+            'status': {'read_only': True},
+            'created': {'read_only': True},
+            'modified': {'read_only': True}
+        }
