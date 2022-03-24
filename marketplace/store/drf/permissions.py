@@ -9,7 +9,7 @@ class ProductPermission(IsAuthenticated):
         if request.method == 'GET':
             return True
 
-        if request.action == 'POST ' and request.user.type == 'seller':
+        if request.method == 'POST' and request.user.type == 'seller':
             return True
 
         return False

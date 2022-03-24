@@ -78,7 +78,7 @@ class ProductsAPITest(APITestCase):
         Check the user creation (register) works        
         '''
         # Only seller user can register a product
-        self.client.force_login(self.seller_user)
+        self.client.force_authenticate(self.seller_user)
 
         data = {
             'price': '120.50',
@@ -113,7 +113,7 @@ class ProductsAPITest(APITestCase):
         }
 
         response = self.client.post(self.url_list, data)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_seller_user_only_see_his_products(self):
         other_user = User.objects.create(username='other')
@@ -134,7 +134,7 @@ class ProductsAPITest(APITestCase):
             )
             products.append(product)
         # Only seller user can register a product
-        self.client.force_login(self.seller_user)
+        self.client.force_authenticate(self.seller_user)
 
         response = self.client.get(self.url_list)
         self.assertEqual(response.status_code, 200)
@@ -164,7 +164,7 @@ class ProductsAPITest(APITestCase):
             )
             products.append(product)
         # Only seller user can register a product
-        self.client.force_login(self.buyer_user)
+        self.client.force_authenticate(self.buyer_user)
 
         response = self.client.get(self.url_list)
         self.assertEqual(response.status_code, 200)
@@ -204,7 +204,7 @@ class OrderAPITest(APITestCase):
             'buyer': str(self.buyer_user.uuid),
         }
 
-        self.client.force_login(self.buyer_user)
+        self.client.force_authenticate(self.buyer_user)
 
         with freeze_time('2020, 2, 1'):
             response = self.client.post(self.url_list, data)
@@ -223,7 +223,7 @@ class OrderAPITest(APITestCase):
             'buyer': str(self.buyer_user.uuid),
         }
 
-        self.client.force_login(self.seller_user)
+        self.client.force_authenticate(self.seller_user)
 
         response = self.client.post(self.url_list, data)
 
